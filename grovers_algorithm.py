@@ -6,6 +6,7 @@ from pyquil.quil import DefGate
 from pyquil.gates import *
 from pyquil.api import local_forest_runtime, WavefunctionSimulator
 import numpy as np
+import sys
 
 
 def obstacle(qubits, key):
@@ -65,10 +66,17 @@ def groversAlgorithm(qubits, key):
     return prog
 
 
-def run():
+def main(argv):
     num_of_qubits = 3
-    qubits = range(num_of_qubits)
     key = 5
+
+    if(isinstance(argv[0], int) and argv[0] in argv and 2 ** int(argv[0]) > int(argv[1])):
+        num_of_qubits = int(argv[0])
+
+    if(isinstance(argv[0], int) and argv[1] in argv and 2 ** int(argv[0]) > int(argv[1])):
+        key = int(argv[1])
+
+    qubits = range(num_of_qubits)
 
     prog = groversAlgorithm(qubits, key)
 
@@ -76,4 +84,5 @@ def run():
     print(wfn)
 
 
-run()
+if __name__ == "__main__":
+    main(sys.argv[1:])
