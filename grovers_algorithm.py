@@ -32,6 +32,24 @@ def obstacle(qubits, key):
     return prog
 
 
+def grovers_diffusion_operator(qubits):
+    prog = Program()
+
+    rows = 2 ** len(qubits)
+    arr = 2 / 2**len(qubits) * \
+        np.ones((rows, rows), int) - np.identity(rows)
+
+    diffusion_operator_definition = DefGate("DIFFUSION_OPERATOR", arr)
+    DIFFUSION_OPERATOR = diffusion_operator_definition.get_constructor()
+    prog += Program(diffusion_operator_definition)
+
+    qbits = [qubit for qubit in reversed(qubits)]
+
+    prog += Program(DIFFUSION_OPERATOR(*qbits))
+
+    return prog
+
+
 def equalSuperPosition(qubits):
     prog = Program()
     for i in qubits:
@@ -43,6 +61,7 @@ def groversAlgorithm(qubits, key):
     prog = Program()
     prog += equalSuperPosition(qubits)
     prog += obstacle(qubits, key)
+    prog += grovers_diffusion_operator(qubits)
     return prog
 
 
