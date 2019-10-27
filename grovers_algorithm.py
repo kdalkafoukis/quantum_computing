@@ -82,23 +82,25 @@ def groversAlgorithm(qubits, key):
     return prog
 
 
-def main(argv):
+def getNumOfQubitsAndSearchKey(argv):
     num_of_qubits = 3
     key = 5
+    if (len(argv) >= 2):
+        try:
+            argv0 = int(argv[0])
+            argv1 = int(argv[1])
+            if(argv[0] in argv and argv[1] in argv and 2 ** argv0 > argv1):
+                num_of_qubits = argv0
+                key = argv1
 
-    try:
-        int(argv[0])
-        if(argv[0] in argv and 2 ** int(argv[0]) > int(argv[1])):
-            num_of_qubits = int(argv[0])
-    except ValueError:
-        pass
+        except ValueError:
+            pass
 
-    try:
-        int(argv[1])
-        if(argv[1] in argv and 2 ** int(argv[0]) > int(argv[1])):
-            key = int(argv[1])
-    except ValueError:
-        pass
+        return num_of_qubits, key
+
+
+def main(argv):
+    num_of_qubits, key = getNumOfQubitsAndSearchKey(argv)
 
     qubits = range(num_of_qubits)
 
