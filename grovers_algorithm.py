@@ -9,47 +9,48 @@ import numpy as np
 import sys
 
 
-def obstacle(qubits, key):
-    prog = Program()
+class Obstacle:
+    def __init__(self, qubits, key):
+        rows = 2 ** len(qubits)
+        arr = np.zeros((rows, rows), int)
 
-    rows = 2 ** len(qubits)
-    arr = np.zeros((rows, rows), int)
+        for row in range(rows):
+            diagonal_element = 1
+            if(row == key):
+                diagonal_element = -1
 
-    for row in range(rows):
-        diagonal_element = 1
-        if(row == key):
-            diagonal_element = -1
+            arr[row][row] = diagonal_element
 
-        arr[row][row] = diagonal_element
+        self.obstacle_definition = DefGate("OBSTACLE", arr)
+        self.qubits = qubits
 
-    obstacle_definition = DefGate("OBSTACLE", arr)
-    OBSTACLE = obstacle_definition.get_constructor()
-    prog += Program(obstacle_definition)
+    def init(self):
+        return Program(self.obstacle_definition)
 
-    qbits = [qubit for qubit in reversed(qubits)]
-
-    prog += Program(OBSTACLE(*qbits))
-
-    return prog
+    def iterate(self):
+        OBSTACLE = self.obstacle_definition.get_constructor()
+        qbits = [qubit for qubit in reversed(self.qubits)]
+        return Program(OBSTACLE(*qbits))
 
 
-def grovers_diffusion_operator(qubits):
-    prog = Program()
+class GroversDiffusionOperator:
+    def __init__(self, qubits):
+        rows = 2 ** len(qubits)
+        arr = np.zeros((rows, rows), int)
 
-    rows = 2 ** len(qubits)
+        arr = 2 / rows * \
+            np.ones((rows, rows), int) - np.identity(rows)
 
-    arr = 2 / rows * \
-        np.ones((rows, rows), int) - np.identity(rows)
+        self.diffusion_operator_definition = DefGate("DIFFUSION_OPERATOR", arr)
+        self.qubits = qubits
 
-    diffusion_operator_definition = DefGate("DIFFUSION_OPERATOR", arr)
-    DIFFUSION_OPERATOR = diffusion_operator_definition.get_constructor()
-    prog += Program(diffusion_operator_definition)
+    def init(self):
+        return Program(self.diffusion_operator_definition)
 
-    qbits = [qubit for qubit in reversed(qubits)]
-
-    prog += Program(DIFFUSION_OPERATOR(*qbits))
-
-    return prog
+    def iterate(self):
+        DIFFUSION_OPERATOR = self.diffusion_operator_definition.get_constructor()
+        qbits = [qubit for qubit in reversed(self.qubits)]
+        return Program(DIFFUSION_OPERATOR(*qbits))
 
 
 def equalSuperPosition(qubits):
@@ -67,11 +68,16 @@ def groversAlgorithm(qubits, key):
     prog = Program()
     prog += equalSuperPosition(qubits)
 
-    iterations = diffusion_iterations(qubits)
+    obstacle = Obstacle(qubits, key)
+    prog += obstacle.init()
 
+    grovers_diffusion_operator = GroversDiffusionOperator(qubits)
+    prog += grovers_diffusion_operator.init()
+
+    iterations = diffusion_iterations(qubits)
     for i in range(iterations):
-        prog += obstacle(qubits, key)
-        prog += grovers_diffusion_operator(qubits)
+        prog += obstacle.iterate()
+        prog += grovers_diffusion_operator.iterate()
 
     return prog
 
