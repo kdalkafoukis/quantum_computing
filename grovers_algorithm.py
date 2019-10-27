@@ -70,8 +70,8 @@ def groversAlgorithm(qubits, key):
     iterations = diffusion_iterations(qubits)
 
     for i in range(iterations):
-    prog += obstacle(qubits, key)
-    prog += grovers_diffusion_operator(qubits)
+        prog += obstacle(qubits, key)
+        prog += grovers_diffusion_operator(qubits)
 
     return prog
 
@@ -80,11 +80,19 @@ def main(argv):
     num_of_qubits = 3
     key = 5
 
-    if(isinstance(argv[0], int) and argv[0] in argv and 2 ** int(argv[0]) > int(argv[1])):
-        num_of_qubits = int(argv[0])
+    try:
+        int(argv[0])
+        if(argv[0] in argv and 2 ** int(argv[0]) > int(argv[1])):
+            num_of_qubits = int(argv[0])
+    except ValueError:
+        pass
 
-    if(isinstance(argv[0], int) and argv[1] in argv and 2 ** int(argv[0]) > int(argv[1])):
-        key = int(argv[1])
+    try:
+        int(argv[1])
+        if(argv[1] in argv and 2 ** int(argv[0]) > int(argv[1])):
+            key = int(argv[1])
+    except ValueError:
+        pass
 
     qubits = range(num_of_qubits)
 
