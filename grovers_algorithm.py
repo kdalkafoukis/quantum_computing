@@ -96,7 +96,7 @@ def getNumOfQubitsAndSearchKey(argv):
         except ValueError:
             pass
 
-        return num_of_qubits, key
+    return num_of_qubits, key
 
 
 def main(argv):
