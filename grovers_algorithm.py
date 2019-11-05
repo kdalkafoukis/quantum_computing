@@ -1,6 +1,7 @@
 # https://arxiv.org/pdf/quant-ph/9605043.pdf
 # https://en.wikipedia.org/wiki/Grover%27s_algorithm
 
+# author: Konstantinos Dalkafoukis
 from pyquil import get_qc, Program
 from pyquil.quil import DefGate
 from pyquil.gates import *
