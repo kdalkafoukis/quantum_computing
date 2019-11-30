@@ -10,7 +10,7 @@ import numpy as np
 import sys
 
 
-def getNumOfQubitsAndSearchKey(argv):
+def parseNumOfIterations(argv):
     num_of_iterations = 1
     if (len(argv) >= 1):
         try:
@@ -117,7 +117,7 @@ def random_walks(num_of_iterations):
 
 
 def main(argv):
-    num_of_iterations = getNumOfQubitsAndSearchKey(argv)
+    num_of_iterations = parseNumOfIterations(argv)
 
     prog = random_walks(num_of_iterations)
 
