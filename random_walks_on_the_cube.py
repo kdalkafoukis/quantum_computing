@@ -10,17 +10,26 @@ import numpy as np
 import sys
 
 
+def parseNumOfIterations(argv):
+    num_of_iterations = 1
+    if (len(argv) >= 1):
+        try:
+            argv0 = int(argv[0])
+            if(argv[0] in argv):
+                num_of_iterations = argv0
+
+        except ValueError:
+            pass
+
+    return num_of_iterations
+
+
 def coin():
     '''
     |0> = |00> |1> = |01> |2> = |10> |3> = |11>
     coin = 1/sqrt(3)(|1> + |2> + |3>)
     '''
-    prog = Program()
-
-    num_of_qubits = 2
-    qubits = range(num_of_qubits)
-
-    arr = np.sqrt(1/3) * np.array([
+    arr = np.sqrt(1 / 3) * np.array([
         [0,  1,  1,  1],
         [1, -1,  1,  0],
         [1,  1,  0, -1],
@@ -28,14 +37,10 @@ def coin():
     ], dtype=complex)
 
     definition = DefGate("coin", arr)
-    prog += Program(definition)
-    operator = definition.get_constructor()
-    qbits = [qubit for qubit in reversed(qubits)]
-    prog += Program(operator(*qbits))
-    return prog
+    return definition
 
 
-def sOperator():
+def sOperator(qubits, operator):
     '''
     |0> = |00> |1> = |01> |2> = |10> |3> = |11>
         |0><0|⨂∑|i><i| +
@@ -43,7 +48,6 @@ def sOperator():
         |2><2|⨂∑|adj_vertex2_of_i><i| +
         |3><3|⨂∑|adj_vertex3_of_i><i|
     '''
-    prog = Program()
 
     adjMatrix = np.array([
         [0, 1, 1, 0, 1, 0, 0, 0],
@@ -91,12 +95,8 @@ def sOperator():
         [0, 0, 0, 1, 0, 0, 0, 0]
     ], dtype=complex)
 
-    num_of_qubits = 5
-    qubits = range(num_of_qubits)
-
     rows = 2 ** len(qubits)
     ar = np.zeros((rows, rows), complex)
-
     for i in range(8):
         for j in range(8):
             ar[i][j] = arr1[i][j]
@@ -104,26 +104,34 @@ def sOperator():
             ar[i+16][j+16] = arr3[i][j]
             ar[i+24][j+24] = arr4[i][j]
 
-    definition = DefGate("sOperator", ar)
-    prog += Program(definition)
-    operator = definition.get_constructor()
-    qbits = [qubit for qubit in qubits]
-    prog += Program(operator(*qbits))
-    return prog
+    definition = DefGate(operator, ar)
+    return definition
 
 
-def random_walks():
+def random_walks(num_of_iterations=1):
     prog = Program()
 
-    for i in range(1):
-        prog += coin()
-        prog += sOperator()
+    num_of_qubits = 5
+    qubits = range(num_of_qubits)
+
+    definition = sOperator(qubits, "sOperator")
+    prog += Program(definition)
+    operator = definition.get_constructor()
+    qbits = [qubit for qubit in reversed(qubits)]
+
+    coinDefinition = coin()
+    prog += Program(coinDefinition)
+    coinOperator = coinDefinition.get_constructor()
+
+    prog += Program(coinOperator(3, 4))
+    prog += Program(operator(*qbits))
 
     return prog
 
 
 def main(argv):
-    prog = random_walks()
+    num_of_iterations = parseNumOfIterations(argv)
+    prog = random_walks(num_of_iterations)
     wfn = WavefunctionSimulator().wavefunction(prog)
     prob = wfn.get_outcome_probs()
     print(wfn)
