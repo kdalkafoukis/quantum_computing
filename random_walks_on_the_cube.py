@@ -24,26 +24,25 @@ def parseNumOfIterations(argv):
     return num_of_iterations
 
 
-def coin():
+def coin(definition_name):
     '''
     |0> = |00> |1> = |01> |2> = |10> |3> = |11>
     coin = 1/sqrt(3)(|1> + |2> + |3>)
     '''
     arr = np.sqrt(1 / 3) * np.array([
-        [0,  1,  1,  1],
-        [1, -1,  1,  0],
-        [1,  1,  0, -1],
-        [1,  0, -1,  1]
+        [ 0, 1, 1, 1],
+        [ 1, 0,-1, 1],
+        [ 1, 1, 0,-1],
+        [ 1,-1, 1, 0],
     ], dtype=complex)
 
-    definition = DefGate("coin", arr)
+    definition = DefGate(definition_name, arr)
     return definition
-
 
 def sOperator(qubits, operator):
     '''
     |0> = |00> |1> = |01> |2> = |10> |3> = |11>
-        |0><0|⨂∑|i><i| +
+        |0><0|⨂ 1/3 * (∑|adj_vertex1_of_i><i| + ∑|adj_vertex2_of_i><i| + ∑|adj_vertex3_of_i><i|)
     S = |1><1|⨂∑|adj_vertex1_of_i><i| +
         |2><2|⨂∑|adj_vertex2_of_i><i| +
         |3><3|⨂∑|adj_vertex3_of_i><i|
@@ -60,7 +59,18 @@ def sOperator(qubits, operator):
     #     [0, 0, 0, 1, 0, 1, 1, 0]
     # ], dtype=complex)
 
-    arr1 = np.identity(8, dtype=complex)
+    arr1 = np.array([
+        [ 0, 1, 1, 0, 1, 0, 0, 0],
+        [ 1, 0, 0, 1, 0, 1, 0, 0],
+        [ 1, 0, 0,-1, 0, 0, 1, 0],
+        [ 0, 1,-1, 0, 0, 0, 0, 1],
+        [ 1, 0, 0, 0, 0,-1,-1, 0],
+        [ 0, 1, 0, 0,-1, 0, 0,-1],
+        [ 0, 0, 1, 0,-1, 0, 0, 1],
+        [ 0, 0, 0, 1, 0,-1, 1, 0]
+    ], dtype=complex)
+
+    arr1 = np.sqrt(1 / 3) * arr1
 
     arr2 = np.array([
         [0, 1, 0, 0, 0, 0, 0, 0],
@@ -107,6 +117,13 @@ def sOperator(qubits, operator):
     definition = DefGate(operator, ar)
     return definition
 
+def groverCoin(qubits,gateName):
+        rows = 2 ** len(qubits)
+        arr = 2 / rows * \
+            np.ones((rows, rows), int) - np.identity(rows)
+    
+        definition = DefGate(gateName, arr)
+        return definition
 
 def random_walks(num_of_iterations=1):
     prog = Program()
@@ -119,12 +136,17 @@ def random_walks(num_of_iterations=1):
     operator = definition.get_constructor()
     qbits = [qubit for qubit in reversed(qubits)]
 
-    coinDefinition = coin()
+    coinDefinition = coin("coin")
     prog += Program(coinDefinition)
     coinOperator = coinDefinition.get_constructor()
 
-    prog += Program(coinOperator(3, 4))
-    prog += Program(operator(*qbits))
+    groverCoinDefinition = groverCoin([4,3],"groverCoin")
+    prog += Program(groverCoinDefinition)
+    groverCoinOperator = groverCoinDefinition.get_constructor()
+
+    for i in range(num_of_iterations):
+        prog += Program(groverCoinOperator(3,4))
+        prog += Program(operator(*qbits))
 
     return prog
 

@@ -26,6 +26,13 @@ Experimental repository
 - 1st arg: number of iterations
 - run for eg. two iterations `python random_walks_on_the_line.py 2`
 
+### quantum random walk on the qube
+
+##### args
+
+- 1st arg: number of iterations
+- run for eg. two iterations `python random_walks_on_the_cube.py 2`
+
 ### Grover's algorithm
 
 ##### args
