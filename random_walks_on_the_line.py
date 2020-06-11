@@ -29,7 +29,7 @@ def mCoin(num_of_qubits):
         M Coin
         M_COIN = (
             1  j
-            1 j
+            j  1
         )
     '''
     arr = (1/np.sqrt(2)) * np.array([(1, 1j), (1j, 1)], dtype=complex)
