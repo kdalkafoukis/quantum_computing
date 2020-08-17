@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.linalg import orth
+from utils import allCombinations
 
 H = np.array(
     [
@@ -8,11 +10,9 @@ H = np.array(
 )
 
 def arrayToBinaryString(arr):
-    return "01001100"
-    # return "01001100"
-    # return "11" 
-    # return "00011011" + ''.join(reversed("00011011"))
+    return "10000011"
 
+    # return "00011011" + ''.join(reversed("00011011"))
 
 def fillFirstTwoLines(arr):
     rows = len(arr)
@@ -27,17 +27,22 @@ def fillFirstTwoLines(arr):
             arr[0][i + 0] = 0
             arr[0][i + 1] = 1
             arr[1][i + 0] = 1
+            # arr[1][i + 0] = -1
+
             arr[1][i + 1] = 0
         elif(twoDigits == "10"):
             arr[0][i + 0] = 1
             arr[0][i + 1] = 0
             arr[1][i + 0] = 0
             arr[1][i + 1] = 1
+            # arr[1][i + 1] = -1
+
         elif(twoDigits == "11"):
             arr[0][i + 0] = 1
             arr[0][i + 1] = 1
             arr[1][i + 0] = 1
             arr[1][i + 1] = -1 
+    
 
 def fillRestOfLines(arr):
     rows = len(arr)
@@ -56,26 +61,51 @@ def fillRestOfLines(arr):
 
 def generateHadamardGate(arr):
     rows = len(arr)
-    a = np.kron(H, H)
+    a = np.kron(H,H)
     for number in range(2,int(np.log2(rows))-1):
         a = np.kron(H, a)
     a = np.kron(a,np.array([[1,1],[1,1]]))
     return a
+
 def multiplyHadamardWithStateArray(a,b):
     return np.multiply(a,b)
 
+def generateQR(A):
+    q, r = np.linalg.qr(A)
+    print(q)
+    print(r)
+
 def generate_density_matrix(state, numberOfElements):
     rows = len(state)
-    arr = np.zeros((rows, rows), int)
-    fillFirstTwoLines(arr)
-    fillRestOfLines(arr)
-    hadamardGate = generateHadamardGate(arr)
-    arr = multiplyHadamardWithStateArray(arr,hadamardGate)
-    print(arr,numberOfElements)
-    arr = np.sqrt(1 / numberOfElements) * arr
-    print(testIfArrayIsUnitary(arr))
+    A = np.zeros((rows, rows), int)
+    fillFirstTwoLines(A)
+    fillRestOfLines(A)
 
-    print(arr,numberOfElements)
+    # ///////// to be removed or replaced
+
+    # hadamardGate = generateHadamardGate(A)
+    # A = multiplyHadamardWithStateArray(A,hadamardGate)
+
+    # /////////
+
+    # /////////
+    A[2][2] = -1
+    A[3][3] = -1
+    A[6][6] = -1
+    A[7][7] = -1
+    # /////////
+
+    # generateQR(A)
+    print(A,numberOfElements)
+
+    A = np.sqrt(1 / numberOfElements) * A
+
+    if(testIfArrayIsUnitary(A)):
+        print(True)
+    else:
+        # pass
+        print(False)
+        # print(allCombinations(A, rows))
 
 
 def testIfArrayIsUnitary(arr):
@@ -90,7 +120,7 @@ def testIfArrayIsUnitary(arr):
     arrMultArrTransConj = np.rint(arrMultArrTransConj)
     
     identityMatrix = np.identity(arr.shape[0])
-    # print(arrMultArrTransConj)
+    print(arrMultArrTransConj)
 
     if(np.array_equal(arrMultArrTransConj,identityMatrix)):
         return True
