@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.linalg import orth
-from utils import allCombinations
+from utils import allCombinations, testIfArrayIsUnitary
 
 H = np.array(
     [
@@ -11,7 +11,6 @@ H = np.array(
 
 def arrayToBinaryString(arr):
     return "10000011"
-
     # return "00011011" + ''.join(reversed("00011011"))
 
 def fillFirstTwoLines(arr):
@@ -99,33 +98,7 @@ def generate_density_matrix(state, numberOfElements):
     print(A,numberOfElements)
 
     A = np.sqrt(1 / numberOfElements) * A
-
-    if(testIfArrayIsUnitary(A)):
-        print(True)
-    else:
-        # pass
-        print(False)
-        # print(allCombinations(A, rows))
-
-
-def testIfArrayIsUnitary(arr):
-    '''
-    U U* = U* U= I
-    '''
-    
-    arr_conjugate_transpose = np.conjugate(arr)
-    arr_conjugate_transpose = np.transpose(arr_conjugate_transpose)
-    arrMultArrTransConj = arr.dot(arr_conjugate_transpose)
-    arrMultArrTransConj = np.absolute(arrMultArrTransConj)
-    arrMultArrTransConj = np.rint(arrMultArrTransConj)
-    
-    identityMatrix = np.identity(arr.shape[0])
-    print(arrMultArrTransConj)
-
-    if(np.array_equal(arrMultArrTransConj,identityMatrix)):
-        return True
-    else:
-        return False
+    print(testIfArrayIsUnitary(A))
 
 if __name__ == "__main__":
     arr = [3,4,6]
