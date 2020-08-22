@@ -9,7 +9,6 @@ from pyquil.api import local_forest_runtime, WavefunctionSimulator
 import numpy as np
 import sys
 
-
 def parseNumOfIterations(argv):
     num_of_iterations = 1
     if (len(argv) >= 1):
@@ -23,31 +22,7 @@ def parseNumOfIterations(argv):
 
     return num_of_iterations
 
-
-def coin(definition_name):
-    '''
-    |0> = |00> |1> = |01> |2> = |10> |3> = |11>
-    coin = 1/sqrt(3)(|1> + |2> + |3>)
-    '''
-    arr = np.sqrt(1 / 3) * np.array([
-        [ 0, 1, 1, 1],
-        [ 1, 0,-1, 1],
-        [ 1, 1, 0,-1],
-        [ 1,-1, 1, 0],
-    ], dtype=complex)
-
-    definition = DefGate(definition_name, arr)
-    return definition
-
 def sOperator(qubits, operator):
-    '''
-    |0> = |00> |1> = |01> |2> = |10> |3> = |11>
-        |0><0|⨂ 1/3 * (∑|adj_vertex1_of_i><i| + ∑|adj_vertex2_of_i><i| + ∑|adj_vertex3_of_i><i|)
-    S = |1><1|⨂∑|adj_vertex1_of_i><i| +
-        |2><2|⨂∑|adj_vertex2_of_i><i| +
-        |3><3|⨂∑|adj_vertex3_of_i><i|
-    '''
-
     # adjMatrix = np.array([
     #     [0, 1, 1, 0, 1, 0, 0, 0],
     #     [1, 0, 0, 1, 0, 1, 0, 0],
@@ -59,18 +34,7 @@ def sOperator(qubits, operator):
     #     [0, 0, 0, 1, 0, 1, 1, 0]
     # ], dtype=complex)
 
-    arr1 = np.array([
-        [ 0, 1, 1, 0, 1, 0, 0, 0],
-        [ 1, 0, 0, 1, 0, 1, 0, 0],
-        [ 1, 0, 0,-1, 0, 0, 1, 0],
-        [ 0, 1,-1, 0, 0, 0, 0, 1],
-        [ 1, 0, 0, 0, 0,-1,-1, 0],
-        [ 0, 1, 0, 0,-1, 0, 0,-1],
-        [ 0, 0, 1, 0,-1, 0, 0, 1],
-        [ 0, 0, 0, 1, 0,-1, 1, 0]
-    ], dtype=complex)
-
-    arr1 = np.sqrt(1 / 3) * arr1
+    arr1 = np.identity(8)
 
     arr2 = np.array([
         [0, 1, 0, 0, 0, 0, 0, 0],
@@ -109,21 +73,42 @@ def sOperator(qubits, operator):
     ar = np.zeros((rows, rows), complex)
     for i in range(8):
         for j in range(8):
-            ar[i][j] = arr1[i][j]
-            ar[i+8][j+8] = arr2[i][j]
-            ar[i+16][j+16] = arr3[i][j]
-            ar[i+24][j+24] = arr4[i][j]
+            ar[i][j] = arr2[i][j]
+            ar[i+8][j+8] = arr3[i][j]
+            ar[i+16][j+16] = arr4[i][j]
+            ar[i+24][j+24] = arr1[i][j]
 
     definition = DefGate(operator, ar)
     return definition
 
-def groverCoin(qubits,gateName):
-        rows = 2 ** len(qubits)
-        arr = 2 / rows * \
-            np.ones((rows, rows), int) - np.identity(rows)
-    
-        definition = DefGate(gateName, arr)
-        return definition
+def dft(gateName):
+    '''
+    https://en.wikipedia.org/wiki/DFT_matrix
+    '''
+    fftEl = 1/2 - 1j* np.sqrt(3)/2
+    # A = np.sqrt(1 / 3) * np.array([
+    #     [   np.sqrt(3),  0,  0, 0],
+    #     [   0, fftEl ** 1, fftEl ** 2, fftEl ** 3],
+    #     [   0, fftEl ** 2, -fftEl ** 4, fftEl ** 6],
+    #     [   0, fftEl ** 3, fftEl ** 6, fftEl ** 9],
+    # ], dtype=complex)
+    A = np.sqrt(1 / 3) * np.array([
+        [   1,  1,  1, 0],
+        [   1, -fftEl ** 1,  fftEl ** 2, 0],
+        [  -1, -fftEl ** 2, -fftEl ** 4, 0],
+        [   0,  0 , 0, np.sqrt(3)],
+    ], dtype=complex)
+    arr = A
+    definition = DefGate(gateName, arr)
+    return definition
+
+def groverCoin(gateName):
+    sC = np.sqrt(1 / 3) * np.array([[1,1,1,0]])
+    sCproduct = np.multiply(sC, np.transpose(sC))
+    G = 2 * sCproduct - np.identity(4)
+    arr = G
+    definition = DefGate(gateName, arr)
+    return definition
 
 def random_walks(num_of_iterations=1):
     prog = Program()
@@ -136,16 +121,17 @@ def random_walks(num_of_iterations=1):
     operator = definition.get_constructor()
     qbits = [qubit for qubit in reversed(qubits)]
 
-    coinDefinition = coin("coin")
+    coinDefinition = dft("coin")
     prog += Program(coinDefinition)
     coinOperator = coinDefinition.get_constructor()
 
-    groverCoinDefinition = groverCoin([4,3],"groverCoin")
+    groverCoinDefinition = groverCoin("groverCoin")
     prog += Program(groverCoinDefinition)
     groverCoinOperator = groverCoinDefinition.get_constructor()
 
     for i in range(num_of_iterations):
-        prog += Program(groverCoinOperator(3,4))
+        prog += Program(coinOperator(3,4))
+        # prog += Program(groverCoinOperator(3,4))
         prog += Program(operator(*qbits))
 
     return prog
