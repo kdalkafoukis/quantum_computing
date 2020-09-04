@@ -46,6 +46,26 @@ from scipy.linalg import orth
 #     ]
 # )
 
+import numpy as np
+
+
+def gram_schmidt(A):
+    """Orthogonalize a set of vectors stored as the columns of matrix A."""
+    # Get the number of vectors.
+    n = A.shape[1]
+    for j in range(n):
+        # To orthogonalize the vector in column j with respect to the
+        # previous vectors, subtract from it its projection onto
+        # each of the previous vectors.
+        for k in range(j):
+            A[:, j] -= np.dot(A[:, k], A[:, j]) * A[:, k]
+        A[:, j] = A[:, j] / np.linalg.norm(A[:, j])
+    return A
+
+if __name__ == '__main__':
+    A = np.array([[1.0, 1.0, 0.0], [1.0, 3.0, 1.0], [2.0, -1.0, 1.0]])
+    print(gram_schmidt(A))
+
 def testIfArrayIsUnitary(arr):
     '''
     U U* = U* U= I
@@ -55,7 +75,7 @@ def testIfArrayIsUnitary(arr):
     arr_conjugate_transpose = np.transpose(arr_conjugate_transpose)
     # arr_conjugate_transpose = np.matrix(arr).getH()
     arrMultArrTransConj = arr.dot(arr_conjugate_transpose)
-    arrMultArrTransConj = np.absolute(arrMultArrTransConj)
+    # arrMultArrTransConj = np.absolute(arrMultArrTransConj)
     arrMultArrTransConj = np.rint(arrMultArrTransConj)
     
     identityMatrix = np.identity(arr.shape[0])
