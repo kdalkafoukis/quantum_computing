@@ -45,21 +45,30 @@ def applyOnesToDensityMatrix(density_matrix,numberOfElements, rows):
             density_matrix[i][i] = np.sqrt(numberOfElements) 
     return density_matrix
 
-def generate_density_matrix():
-    state = np.array([[1, 1, 1, 1, 1, 0, 0, 0]], dtype=complex)
-    rows = len(state[0])
+def shiftedState(state, rows):
+    bitWithFirstOne = 0
+    for i in range(rows):
+        if(abs(state[0][i]) == 1):
+            bitWithFirstOne = i
+            break
 
+    number = bitWithFirstOne
+    num_bits = bitWithFirstOne
+    bits = [(number >> bit) & 1 for bit in range(num_bits - 1, -1, -1)]
+    return bits
+    
+def generate_density_matrix(state, rows):
     density_matrix = state.transpose().dot(state)
     numberOfElements = getNumberOfElements(state)
     flatDft = getFlatDft(numberOfElements)
+    # print(flatDft)
 
     density_matrix = getDensityDft(density_matrix, flatDft, rows)
     density_matrix = applyOnesToDensityMatrix(density_matrix,numberOfElements, rows)
+
     density_matrix = 1 / np.sqrt(numberOfElements) * density_matrix
-
-    print(density_matrix)
-    print(testIfArrayIsUnitary(density_matrix))
-
+    # print(density_matrix)
+    # print(testIfArrayIsUnitary(density_matrix))
     return density_matrix
 
 
