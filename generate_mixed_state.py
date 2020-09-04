@@ -64,20 +64,39 @@ def generate_density_matrix(state, rows):
     return density_matrix
 
 def generateState(arr):
-    state = np.array([[
-        0, 1, 1, 1, 
-        0, 1, 1, 1, 
-    ]], dtype=complex)
-    return state
+    lengthOfArr = len(arr)
+    qubitsOfPosition = np.log2(lengthOfArr)
+    qubitsOfPosition = closestPowerOf2(qubitsOfPosition)
 
-def shiftState(state, rows, prog):
+    maxArr = max(arr)
+    num = closestPowerOf2(maxArr)
+    qubitsOfArrayElement = np.log2(num)
+
+    qubits = closestPowerOf2(qubitsOfPosition + qubitsOfArrayElement)
+
+    arrayWithCombinedStates = []
+    for i in range(len(arr)):
+        bstr = np.uint64(i)  << np.uint64(qubitsOfArrayElement)
+        bstr = bstr + np.uint64(arr[i]) 
+        arrayWithCombinedStates.append(bstr)
+    
+    s = np.zeros((2** qubits),complex)
+    for i in arrayWithCombinedStates:
+        x = int(i)
+        s[x] = 1
+    s = np.array([s],complex)
+    return s
+
+def shiftState(state, prog):
+    rows = len(state[0])
     bits = shiftedState(state, rows)
 
     for position, bit in enumerate(reversed(bits)):
         if(bool(bit)):
             prog += Program(X(position))
 
-def applyDensityMatrix(state, rows, prog):
+def applyDensityMatrix(state, prog):
+    rows = len(state[0])
     arr = generate_density_matrix(state, rows)
 
     definition = DefGate("operator", arr)
@@ -89,13 +108,21 @@ def applyDensityMatrix(state, rows, prog):
     qbits = [qubit for qubit in reversed(qubits)]
     prog += Program(operator(*qbits))
 
+def closestPowerOf2(value,powerOfTwo=1):
+    if(value > 2 * powerOfTwo):
+        return closestPowerOf2(value,2 * powerOfTwo)
+    else:
+        return 2 * powerOfTwo
+    
+def getInputArray():
+    return [3, 5, 2, 7]
+    
 def generateMixedState():
     prog = Program()
-
-    state = generateState([])
-    rows = len(state[0])
-    shiftState(state, rows, prog)
-    applyDensityMatrix(state, rows, prog)
+    inputArr = getInputArray()
+    state = generateState(inputArr)
+    shiftState(state, prog)
+    applyDensityMatrix(state, prog)
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     prob = wfn.get_outcome_probs()
