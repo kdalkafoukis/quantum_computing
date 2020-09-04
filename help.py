@@ -9,8 +9,8 @@ from generate_mixed_state import generate_density_matrix, shiftedState
 prog = Program()
 
 state = np.array([[
+    0, 1, 1, 1, 
     0, 1, 0, 1, 
-    0, 0, 1, 0, 
 ]], dtype=complex)
 
 rows = len(state[0])

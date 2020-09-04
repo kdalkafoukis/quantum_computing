@@ -40,7 +40,7 @@ def applyOnesToDensityMatrix(density_matrix,numberOfElements, rows):
     for i in range(0, rows):
         sum = 0
         for j in range(0, rows):
-            sum = sum + density_matrix[i][j]
+            sum = sum + abs(density_matrix[i][j])
         if(sum == 0):
             density_matrix[i][i] = np.sqrt(numberOfElements) 
     return density_matrix
@@ -56,7 +56,7 @@ def shiftedState(state, rows):
     num_bits = bitWithFirstOne
     bits = [(number >> bit) & 1 for bit in range(num_bits - 1, -1, -1)]
     return bits
-    
+
 def generate_density_matrix(state, rows):
     density_matrix = state.transpose().dot(state)
     numberOfElements = getNumberOfElements(state)
