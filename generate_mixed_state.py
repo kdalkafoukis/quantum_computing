@@ -73,17 +73,15 @@ def generateState(arr):
     num = closestPowerOf2(maxArr)
     qubitsOfArrayElement = np.log2(num)
 
-    arrayWithCombinedStates = []
     for i in range(len(arr)):
         bstr = np.uint64(i)  << np.uint64(qubitsOfArrayElement)
         bstr = bstr + np.uint64(arr[i]) 
-        arrayWithCombinedStates.append(bstr)
+        arr[i]= int(bstr)
     
     qubits = int(qubitsOfPosition + qubitsOfArrayElement)
     state = np.zeros((2** qubits),complex)
-    for i in arrayWithCombinedStates:
-        x = int(i)
-        state[x] = 1
+    for i in arr:
+        state[i] = 1
     state = np.array([state],complex)
     return state
 
