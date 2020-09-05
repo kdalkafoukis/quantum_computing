@@ -5,7 +5,7 @@ from pyquil.quil import DefGate
 from pyquil.gates import *
 from pyquil.api import local_forest_runtime, WavefunctionSimulator
 import numpy as np
-import sys
+import sys, random
 
 def getNumberOfElements(state):
     numberOfElements = 0
@@ -80,12 +80,12 @@ def generateState(arr):
         bstr = bstr + np.uint64(arr[i]) 
         arrayWithCombinedStates.append(bstr)
     
-    s = np.zeros((2** qubits),complex)
+    state = np.zeros((2** qubits),complex)
     for i in arrayWithCombinedStates:
         x = int(i)
-        s[x] = 1
-    s = np.array([s],complex)
-    return s
+        state[x] = 1
+    state = np.array([state],complex)
+    return state
 
 def shiftState(state, prog):
     rows = len(state[0])
@@ -116,7 +116,19 @@ def closestPowerOf2(value,powerOfTwo=1):
     
 def getInputArray():
     return [3, 5, 2, 7]
-    
+    # return generateRandomMatrix()
+
+def generateRandomMatrix():
+    lengthOfArray = random.randint(1, 15)
+    arr = []
+    for i in range(lengthOfArray):
+        coin = random.randint(0, 1)
+        if(coin):
+            arr.append(i)
+        else:
+            arr.append(0)
+    return arr
+
 def generateMixedState():
     prog = Program()
     inputArr = getInputArray()
