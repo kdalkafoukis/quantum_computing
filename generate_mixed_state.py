@@ -72,14 +72,13 @@ def generateState(arr):
     num = closestPowerOf2(maxArr)
     qubitsOfArrayElement = np.log2(num)
 
-    qubits = closestPowerOf2(qubitsOfPosition + qubitsOfArrayElement)
-
     arrayWithCombinedStates = []
     for i in range(len(arr)):
         bstr = np.uint64(i)  << np.uint64(qubitsOfArrayElement)
         bstr = bstr + np.uint64(arr[i]) 
         arrayWithCombinedStates.append(bstr)
     
+    qubits = int(qubitsOfPosition + qubitsOfArrayElement)
     state = np.zeros((2** qubits),complex)
     for i in arrayWithCombinedStates:
         x = int(i)
@@ -115,10 +114,10 @@ def closestPowerOf2(value,powerOfTwo=1):
         return 2 * powerOfTwo
     
 def getArray():
-    return [3, 5, 2, 7]
+    return [3, 19, 21, 3, 5, 4, 29]
 
 def getInputArray():
-    return generateRandomMatrix()
+    return getArray()
 
 def generateRandomMatrix():
     lengthOfArray = random.randint(1, 15)
