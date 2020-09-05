@@ -114,9 +114,11 @@ def closestPowerOf2(value,powerOfTwo=1):
     else:
         return 2 * powerOfTwo
     
-def getInputArray():
+def getArray():
     return [3, 5, 2, 7]
-    # return generateRandomMatrix()
+
+def getInputArray():
+    return generateRandomMatrix()
 
 def generateRandomMatrix():
     lengthOfArray = random.randint(1, 15)
