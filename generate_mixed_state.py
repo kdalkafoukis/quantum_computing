@@ -1,10 +1,9 @@
 import numpy as np
 from scipy.linalg import dft
-from pyquil import get_qc, Program
+from pyquil import Program
 from pyquil.quil import DefGate
 from pyquil.gates import *
-from pyquil.api import local_forest_runtime, WavefunctionSimulator
-import numpy as np
+from pyquil.api import WavefunctionSimulator
 import sys, random
 
 def getNumberOfElements(state):
@@ -40,7 +39,9 @@ def applyOnesToDensityMatrix(density_matrix,numberOfElements, rows):
             density_matrix[i][i] = np.sqrt(numberOfElements) 
     return density_matrix
 
-def shiftedState(state, rows):
+def shiftedState(state):
+    rows = len(state[0])
+
     bitWithFirstOne = 0
     for i in range(rows):
         if(abs(state[0][i]) == 1):
@@ -65,8 +66,8 @@ def generate_density_matrix(state, rows):
 
 def generateState(arr):
     lengthOfArr = len(arr)
-    qubitsOfPosition = np.log2(lengthOfArr)
-    qubitsOfPosition = closestPowerOf2(qubitsOfPosition)
+    qubitsOfPosition = closestPowerOf2(lengthOfArr)
+    qubitsOfPosition = np.log2(qubitsOfPosition)
 
     maxArr = max(arr)
     num = closestPowerOf2(maxArr)
@@ -87,8 +88,7 @@ def generateState(arr):
     return state
 
 def shiftState(state, prog):
-    rows = len(state[0])
-    bits = shiftedState(state, rows)
+    bits = shiftedState(state)
 
     for position, bit in enumerate(reversed(bits)):
         if(bool(bit)):
@@ -120,7 +120,7 @@ def getInputArray():
     return getArray()
 
 def generateRandomMatrix():
-    lengthOfArray = random.randint(1, 15)
+    lengthOfArray = random.randint(1, 16)
     arr = []
     for i in range(lengthOfArray):
         coin = random.randint(0, 1)
