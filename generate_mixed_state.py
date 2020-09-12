@@ -64,7 +64,14 @@ def generate_density_matrix(state, rows):
 
     return density_matrix
 
-def generateState(arr):
+def multi_hot_encoder(arr, qubits):
+    state = np.zeros((2** qubits),complex)
+    for i in arr:
+        state[i] = 1
+    state = np.array([state],complex)
+    return state
+
+def generateVectorForArray(arr):
     lengthOfArr = len(arr)
     qubitsOfPosition = closestPowerOf2(lengthOfArr)
     qubitsOfPosition = np.log2(qubitsOfPosition)
@@ -79,11 +86,15 @@ def generateState(arr):
         arr[i]= int(bstr)
     
     qubits = int(qubitsOfPosition + qubitsOfArrayElement)
-    state = np.zeros((2** qubits),complex)
-    for i in arr:
-        state[i] = 1
-    state = np.array([state],complex)
-    return state
+    return multi_hot_encoder(arr, qubits)
+
+def generateVectorForSet(arr):
+    maxArr = max(arr)
+    num = closestPowerOf2(maxArr)
+    qubitsOfArrayElement = np.log2(num)
+    
+    qubits = int(qubitsOfArrayElement)
+    return multi_hot_encoder(arr, qubits)
 
 def shiftState(state, prog):
     bits = shiftedState(state)
@@ -131,7 +142,8 @@ def generateRandomMatrix():
 def generateMixedState():
     prog = Program()
     inputArr = getInputArray()
-    state = generateState(inputArr)
+    state = generateVectorForArray(inputArr)
+    # state = generateVectorForSet(inputArr)
     shiftState(state, prog)
     applyDensityMatrix(state, prog)
 
