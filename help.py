@@ -34,21 +34,22 @@ def getNumOfOnes(arr):
     return numOfOnes
 
 def TestSpecificArray():
-    arr = np.array([1, 1, 1, 1, 1, 0, 0, 1])
+    arr = np.array([1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1])
     createUnitary(arr)
 
 def testAllCombinations():
-    bitsNumber = 2 ** 8
+    number = 16
+    bitsNumber = 2 ** number
     for bit in range(1, bitsNumber):
-        bits = np.array(bit, dtype=np.uint8)
-        inputArr = np.unpackbits(bits, axis=0)
+        bits = [(bit >> b) & 1 for b in range(number - 1, -1, -1)]
+        inputArr = np.array(bits)
         createUnitary(inputArr)
 
 def createUnitary(inputArr):
-    bit = np.packbits(inputArr)[0]
+    bit = np.packbits(inputArr)
 
     isArrayIsUnitary = False
-    for numberOfMutations in range(4): 
+    for numberOfMutations in range(6): 
         u = getUnitary(inputArr, numberOfMutations)
         if(testIfArrayIsUnitary(u)):
             isArrayIsUnitary = True
@@ -62,12 +63,16 @@ def getNewColumn(i, counter, column, prevColumn, lengthOfArr):
     new_column = 0
     if (i == 0):
         new_column = counter + prevColumn
-    elif(i ==1):
+    elif(i == 1):
         new_column = - counter + prevColumn
-    elif(i ==2):
+    elif(i == 2):
         new_column = counter + column
-    elif(i ==3):
+    elif(i == 3):
         new_column = - counter + column
+    elif(i == 4):
+        new_column = counter + 2 * column
+    elif(i == 5):
+        new_column = - counter + 2 * column
 
     new_column = new_column % lengthOfArr
     return new_column
