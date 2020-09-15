@@ -79,9 +79,7 @@ def testIfArrayIsUnitary(arr):
     arrMultArrTransConj = np.rint(arrMultArrTransConj)
     
     identityMatrix = np.identity(arr.shape[0])
-
-    print(arrMultArrTransConj)
-
+    # print(arrMultArrTransConj)
     if(np.array_equal(arrMultArrTransConj,identityMatrix)):
         return True
     else:

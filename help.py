@@ -37,26 +37,36 @@ def TestSpecificArray():
     arr = np.array([1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1])
     createUnitary(arr)
 
+
 def testAllCombinations():
-    number = 16
+    numberOfUnitaries = 0
+
+    number = 8
     bitsNumber = 2 ** number
     for bit in range(1, bitsNumber):
         bits = [(bit >> b) & 1 for b in range(number - 1, -1, -1)]
         inputArr = np.array(bits)
-        createUnitary(inputArr)
+        numberOfUnitaries += createUnitary(inputArr)
+
+    print(numberOfUnitaries)
+
 
 def createUnitary(inputArr):
+    numberOfUnitaries = 0
     bit = np.packbits(inputArr)
 
     isArrayIsUnitary = False
-    for numberOfMutations in range(6): 
+    for numberOfMutations in range(5): 
         u = getUnitary(inputArr, numberOfMutations)
         if(testIfArrayIsUnitary(u)):
             isArrayIsUnitary = True
-            # print(bit, numberOfMutations)
+            numberOfUnitaries = 1
+            # print(numberOfUnitaries, numberOfMutations)
             break
     if(not isArrayIsUnitary):
         print('bit: ', bit)
+    return numberOfUnitaries
+
  
 
 def getNewColumn(i, counter, column, prevColumn, lengthOfArr):
@@ -69,11 +79,73 @@ def getNewColumn(i, counter, column, prevColumn, lengthOfArr):
         new_column = counter + column
     elif(i == 3):
         new_column = - counter + column
-    elif(i == 4):
-        new_column = counter + 2 * column
-    elif(i == 5):
-        new_column = - counter + 2 * column
 
+    # elif(i == 4):
+    #     new_column = counter + 2 * column
+    # elif(i == 5):
+    #     new_column = - counter + 2 * column
+    # elif(i == 6):
+    #     new_column = counter + 2 * prevColumn
+    # elif(i == 7):
+    #     new_column = - counter + 2 * prevColumn
+
+
+    # # elif(i == 8):
+    # #     new_column = counter + 3 * column
+    # # elif(i == 9):
+    # #     new_column = - counter + 3 * column
+    # # elif(i == 10):
+    # #     new_column = counter + 3 * prevColumn
+    # # elif(i == 11):
+    # #     new_column = - counter + 3 * prevColumn
+
+
+    # # # elif(i == 12):
+    # # #     new_column = counter + 4 * column
+    # # # elif(i == 13):
+    # # #     new_column = - counter + 4 * column
+    # # # elif(i == 14):
+    # # #     new_column = counter + 4 * prevColumn
+    # # # elif(i == 15):
+    # # #     new_column = - counter + 4 * prevColumn
+
+
+    # # # elif(i == 16):
+    # # #     new_column = counter + 5 * column
+    # # # elif(i == 17):
+    # # #     new_column = - counter + 5 * column
+    # # # elif(i == 18):
+    # # #     new_column = counter + 5 * prevColumn
+    # # # elif(i == 19):
+    # # #     new_column = - counter + 5 * prevColumn
+
+    
+    # # # elif(i == 20):
+    # # #     new_column = counter + 6 * column
+    # # # elif(i == 21):
+    # # #     new_column = - counter + 6 * column
+    # # # elif(i == 22):
+    # # #     new_column = counter + 6 * prevColumn
+    # # # elif(i == 23):
+    # # #     new_column = - counter + 6 * prevColumn
+
+    # # # elif(i == 24):
+    # # #     new_column = counter + 7 * column
+    # # # elif(i == 25):
+    # # #     new_column = - counter + 7 * column
+    # # # elif(i == 27):
+    # # #     new_column = counter + 7 * prevColumn
+    # # # elif(i == 27):
+    # # #     new_column = - counter + 7 * prevColumn
+
+    # elif(i == 28):
+    #     new_column = counter + 8 * column
+    # elif(i == 29):
+    #     new_column = - counter + 8 * column
+    # elif(i == 30):
+    #     new_column = counter + 8 * prevColumn
+    # elif(i == 31):
+    #     new_column = - counter + 8 * prevColumn
     new_column = new_column % lengthOfArr
     return new_column
 
