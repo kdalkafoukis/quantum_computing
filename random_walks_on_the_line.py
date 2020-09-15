@@ -99,7 +99,7 @@ def random_walks(num_of_iterations):
     # num_of_qubits+1 includes the spin qubit (+1)
     qubits = list(range(num_of_qubits+1))
     definition = sOperator(qubits)
-    prog += Program(definition
+    prog += Program(definition)
     operator = definition.get_constructor()
     qbits = [qubit for qubit in reversed(qubits)]
 
