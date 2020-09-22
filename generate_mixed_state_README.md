@@ -6,8 +6,7 @@ Given an array of numbers we want to generate this state in a quantum computer.
 The array can represent an array with the first qubits being the position qubits coming
 from the number of elements and the position bits in the array and the rest qubits being are the value of the number.
 
-It could solve the same problem for sets by removing position qubits.
-The 
+It can solve the same problem for sets by not calculating position qubits.
 
 It's state preparation for problems such as searching problems, finding the minimum and many other problems and subproblems.
 
