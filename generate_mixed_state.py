@@ -117,7 +117,7 @@ def applyDensityMatrix(state, prog):
     prog += Program(operator(*qbits))
 
 def closestPowerOf2(value,powerOfTwo=1):
-    if(value > 2 * powerOfTwo):
+    if(value >= 2 * powerOfTwo):
         return closestPowerOf2(value,2 * powerOfTwo)
     else:
         return 2 * powerOfTwo
