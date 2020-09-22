@@ -8,6 +8,7 @@ from pyquil.gates import *
 from pyquil.api import local_forest_runtime, WavefunctionSimulator
 import numpy as np
 import sys
+from utils import plotOutput
 
 
 class Obstacle:
@@ -109,6 +110,8 @@ def main(argv):
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     print(wfn)
+    prob = wfn.get_outcome_probs()
+    # plotOutput(prob)
 
 
 if __name__ == "__main__":

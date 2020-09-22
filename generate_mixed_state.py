@@ -5,7 +5,7 @@ from pyquil.quil import DefGate
 from pyquil.gates import *
 from pyquil.api import WavefunctionSimulator
 import sys, random
-import matplotlib.pyplot as plt
+from utils import plotOutput
 
 def getNumberOfElements(state):
     numberOfElements = 0
@@ -138,18 +138,6 @@ def generateRandomMatrix():
         else:
             arr.append(0)
     return arr
-
-def plotOutput(prob):
-    keys = []
-    values = []
-    for key, value in prob.items():
-        if(value != 0):
-            values.append(value)
-            keys.append(key)
-
-    plt.bar(keys, values)
-    plt.ylabel('probability')
-    plt.show()
 
 def generateMixedState():
     prog = Program()

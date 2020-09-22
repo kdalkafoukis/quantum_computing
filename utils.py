@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.linalg import orth
+import matplotlib.pyplot as plt
 
 # A = np.array(
 #     [
@@ -219,3 +220,15 @@ if __name__ == "__main__":
 
 
     pass
+
+def plotOutput(prob):
+    keys = []
+    values = []
+    for key, value in prob.items():
+        if(value != 0):
+            values.append(value)
+            keys.append(key)
+
+    plt.bar(keys, values)
+    plt.ylabel('probability')
+    plt.show()
