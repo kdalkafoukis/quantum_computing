@@ -1,4 +1,4 @@
-# Generate quantum state from an array of numbers
+# Generate quantum state in superposition from an array of numbers
 
 ## Description
 Given an array of numbers we want to generate this state in a quantum computer.  
@@ -78,6 +78,26 @@ minOf(Vector) = 3
 |000 0000> = |000 0011>
 ```
 ### 4. create unitary operator to transform the initial state  
+calculate the dft with size the number of elements in the array
+DFT = DFT(number_of_elements)
+calculate the flat version of the array by transforming the k x k array to a (k x k) x 1 array
+flatDFT = flatMap(DFT)
+
+| y > = |one_hot_vector>
+
+calculate the outer product of the one_hot_vector `|y><y|`
+
+A = | y > < y |
+loop through the outer product array and apply the flatDFT to the non zero elements
+B = elementbyElementMultiply(flatDFT * A)
+
+then apply ones to the diagonal elements that the the sum of the columns it's zero to 
+make it almost unitary
+
+Ualmost = B + diagonalWithZerosInNonZeroColumns
+As last step devide the array with the sqrt of number_of_elements to make it unitary
+
+U = 1 / np.sqrt(numberOfElements) * Ualmost
 
 
 ### 5. handling output

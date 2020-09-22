@@ -54,10 +54,9 @@ def shiftedState(state):
     return bits
 
 def generate_density_matrix(state, rows):
-    density_matrix = state.transpose().dot(state)
     numberOfElements = getNumberOfElements(state)
     flatDft = getFlatDft(numberOfElements)
-
+    density_matrix = state.transpose().dot(state)
     density_matrix = getDensityDft(density_matrix, flatDft, rows)
     density_matrix = applyOnesToDensityMatrix(density_matrix,numberOfElements, rows)
     density_matrix = 1 / np.sqrt(numberOfElements) * density_matrix
