@@ -6,6 +6,7 @@ from pyquil.gates import *
 from pyquil.api import WavefunctionSimulator
 import sys, random
 from utils import plotOutput
+import getopt, sys
 
 def getNumberOfElements(state):
     numberOfElements = 0
@@ -126,7 +127,22 @@ def getArray():
     return [3, 19, 21, 3, 5, 4, 29]
 
 def getInputArray():
-    return getArray()
+    full_cmd_arguments = sys.argv
+    argument_list = full_cmd_arguments[1:]
+    short_options = "i:"
+    long_options = ["input="]
+    try:
+        arguments, values = getopt.getopt(argument_list, short_options, long_options)
+    except getopt.error as err:
+        print (str(err))
+        sys.exit(2)
+    outputArray = []
+    for current_argument, current_value in arguments:
+        if current_argument in ("-i", "--input"):
+            print (("Enabling input mode (%s)") % (current_value))
+            outputArray = [int(x) for x in current_value if x != ',']
+
+    return outputArray
 
 def generateRandomMatrix():
     lengthOfArray = random.randint(1, 16)
@@ -141,7 +157,7 @@ def generateRandomMatrix():
 
 def generateMixedState():
     prog = Program()
-    inputArr = getInputArray()
+    inputArr = getArray()
     state = generateVectorForArray(inputArr)
     # state = generateVectorForSet(inputArr)
     shiftState(state, prog)
@@ -150,7 +166,6 @@ def generateMixedState():
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     prob = wfn.get_outcome_probs()
-
     # plotOutput(prob)
     # print(prob)
 
