@@ -155,21 +155,28 @@ def generateRandomMatrix():
             arr.append(0)
     return arr
 
-def generateMixedState():
-    prog = Program()
-    inputArr = getArray()
-    state = generateVectorForArray(inputArr)
-    # state = generateVectorForSet(inputArr)
+def getState(prog, arr, operation='set'):
+    state = None
+    if(operation == 'set'):
+        state = generateVectorForSet(arr)
+    elif(operation == 'array'):
+        state = generateVectorForArray(arr)
     shiftState(state, prog)
     applyDensityMatrix(state, prog)
-
+    return prog
+    
+def generateSuperPositionState():
+    prog = Program()
+    inputArr = getArray()
+    print('output array', inputArr, '\n')
+    prog = getState(prog, inputArr, 'array')
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     prob = wfn.get_outcome_probs()
     # plotOutput(prob)
     # print(prob)
 
-    print(wfn)
+    print(wfn,  '\n')
     
 if __name__ == "__main__":
-    generateMixedState()
+    generateSuperPositionState()
