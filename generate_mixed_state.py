@@ -74,7 +74,7 @@ def multi_hot_encoder(arr, qubits):
 
 def generateVectorForArray(arr):
     lengthOfArr = len(arr)
-    qubitsOfPosition = closestPowerOf2(lengthOfArr)
+    qubitsOfPosition = closestPowerOf2(lengthOfArr -1)
     qubitsOfPosition = np.log2(qubitsOfPosition)
 
     maxArr = max(arr)
