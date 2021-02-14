@@ -224,8 +224,9 @@ if __name__ == "__main__":
 def plotOutput(prob):
     keys = []
     values = []
+    threshold = 0.02
     for key, value in prob.items():
-        if(value != 0):
+        if(value > threshold):
             values.append(value)
             keys.append(key)
 
