@@ -79,11 +79,11 @@ def generateVectorForArray(arr):
     lengthOfArr = len(arr)
     qubitsOfPosition = closestPowerOf2(lengthOfArr -1)
     qubitsOfPosition = np.log2(qubitsOfPosition)
-
+    print('qubits of position:', int(qubitsOfPosition))
     maxArr = max(arr)
     num = closestPowerOf2(maxArr)
     qubitsOfArrayElement = np.log2(num)
-
+    print('qubits of values:', int(qubitsOfArrayElement))
     for i in range(len(arr)):
         bstr = np.uint64(i)  << np.uint64(qubitsOfArrayElement)
         bstr = bstr + np.uint64(arr[i]) 
@@ -171,7 +171,7 @@ def getState(prog, arr, operation='set'):
 def generateSuperPositionState():
     prog = Program()
     inputArr = getArray()
-    print('output array', inputArr, '\n')
+    print('input array', inputArr)
     prog = getState(prog, inputArr, 'array')
 
     wfn = WavefunctionSimulator().wavefunction(prog)
@@ -179,7 +179,7 @@ def generateSuperPositionState():
     # plotOutput(prob)
     # print(prob)
 
-    print(wfn,  '\n')
+    print(wfn)
     
 if __name__ == "__main__":
     generateSuperPositionState()
