@@ -46,6 +46,7 @@ def hadamardCoin(num_of_qubits):
             1 -1
         )
     '''
+
     return Program(H(num_of_qubits))
 
 
@@ -72,7 +73,7 @@ def sOperator(qubits):
             if(row == (rows >> 1)):
                 column = rows - 1
             arr[row][column] = 1
-
+    print(arr)
     definition = DefGate("s_operator", arr)
 
     return definition
@@ -99,13 +100,13 @@ def random_walks(num_of_iterations):
     # num_of_qubits+1 includes the spin qubit (+1)
     qubits = list(range(num_of_qubits+1))
     definition = sOperator(qubits)
-    prog += Program(definition
+    prog += Program(definition)
     operator = definition.get_constructor()
     qbits = [qubit for qubit in reversed(qubits)]
 
     initStateIsUpZero = True
     # init state  |y(0)> = |↑>⨂|0>
-
+    print(num_of_qubits, qubits)
     for i in range(num_of_iterations):
         prog += coin(num_of_qubits)
         prog += Program(operator(*qbits))
