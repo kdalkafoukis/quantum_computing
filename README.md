@@ -52,3 +52,10 @@ expected result: `(0.377964473+0j)|00000011> + (0.377964473+0j)|00110011> + (0.3
 first 3 qubits are the position of the element  
 last 5 ones are for the value of the array element
 
+### Phase estimation algorithm
+
+##### args
+
+- 1st arg: number of qubits for approximation
+- 2nd arg: theta to be approximated
+- run for eg. qubits=3 and theta=1/4 `python grovers_algorithm.py 3 1/4`
