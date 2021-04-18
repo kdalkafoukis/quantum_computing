@@ -86,7 +86,7 @@ def multi_hot_encoder(arr, qubits):
     return state
 
 
-def generateVectorForArray(arr):
+def getNumberOfQubitsOfPositionAndOfArray(arr):
     lengthOfArr = len(arr)
     qubitsOfPosition = closestPowerOf2(lengthOfArr - 1)
     qubitsOfPosition = np.log2(qubitsOfPosition)
@@ -94,6 +94,12 @@ def generateVectorForArray(arr):
     maxArr = max(arr)
     num = closestPowerOf2(maxArr)
     qubitsOfArrayElement = np.log2(num)
+    return qubitsOfPosition, qubitsOfArrayElement
+
+
+def generateVectorForArray(arr):
+    qubitsOfPosition, qubitsOfArrayElement = getNumberOfQubitsOfPositionAndOfArray(
+        arr)
     print('qubits of values:', int(qubitsOfArrayElement))
     for i in range(len(arr)):
         bstr = np.uint64(i) << np.uint64(qubitsOfArrayElement)
@@ -107,7 +113,6 @@ def generateVectorForSet(arr):
     maxArr = max(arr)
     num = closestPowerOf2(maxArr)
     qubitsOfArrayElement = np.log2(num)
-
     qubits = int(qubitsOfArrayElement)
     return multi_hot_encoder(arr, qubits)
 
@@ -205,6 +210,14 @@ def generateSuperPositionState():
     # print(prob)
 
     print(wfn)
+
+
+def getSuperPositionState(inputArr):
+    prog = Program()
+    print('input array', inputArr)
+    prog += getState(inputArr, 'array')
+    return prog
+
 
 if __name__ == "__main__":
     generateSuperPositionState()
