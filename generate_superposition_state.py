@@ -7,9 +7,12 @@ from pyquil import Program
 from pyquil.quil import DefGate
 from pyquil.gates import *
 from pyquil.api import WavefunctionSimulator
-import sys, random
+import sys
+import random
 from utils import plotOutput
-import getopt, sys
+import getopt
+import sys
+
 
 def getNumberOfElements(state):
     numberOfElements = 0
@@ -18,31 +21,35 @@ def getNumberOfElements(state):
             numberOfElements = numberOfElements + 1
     return numberOfElements
 
+
 def getFlatDft(numberOfElements):
     dftArr = dft(numberOfElements)
     flatDft = []
-    for i in range(0,numberOfElements):
-        for j in range(0,numberOfElements):
+    for i in range(0, numberOfElements):
+        for j in range(0, numberOfElements):
             flatDft.append(dftArr[i][j])
     return flatDft
 
+
 def getDensityDft(density_matrix, flatDft, rows):
     counter = 0
-    for i in range(0,rows):
-        for j in range(0,rows):
+    for i in range(0, rows):
+        for j in range(0, rows):
             if(density_matrix[i][j] != 0):
                 density_matrix[i][j] = flatDft[counter]
                 counter = counter + 1
     return density_matrix
 
-def applyOnesToDensityMatrix(density_matrix,numberOfElements, rows):
+
+def applyOnesToDensityMatrix(density_matrix, numberOfElements, rows):
     for i in range(0, rows):
         sum = 0
         for j in range(0, rows):
             sum = sum + abs(density_matrix[i][j])
         if(sum == 0):
-            density_matrix[i][i] = np.sqrt(numberOfElements) 
+            density_matrix[i][i] = np.sqrt(numberOfElements)
     return density_matrix
+
 
 def shiftedState(state):
     rows = len(state[0])
@@ -58,26 +65,30 @@ def shiftedState(state):
     bits = [(number >> bit) & 1 for bit in range(num_bits - 1, -1, -1)]
     return bits
 
+
 def generate_density_matrix(state, rows):
     numberOfElements = getNumberOfElements(state)
     flatDft = getFlatDft(numberOfElements)
     density_matrix = state.transpose().dot(state)
     density_matrix = getDensityDft(density_matrix, flatDft, rows)
-    density_matrix = applyOnesToDensityMatrix(density_matrix,numberOfElements, rows)
+    density_matrix = applyOnesToDensityMatrix(
+        density_matrix, numberOfElements, rows)
     density_matrix = 1 / np.sqrt(numberOfElements) * density_matrix
 
     return density_matrix
 
+
 def multi_hot_encoder(arr, qubits):
-    state = np.zeros((2** qubits),complex)
+    state = np.zeros((2 ** qubits), complex)
     for i in arr:
         state[i] = 1
-    state = np.array([state],complex)
+    state = np.array([state], complex)
     return state
+
 
 def generateVectorForArray(arr):
     lengthOfArr = len(arr)
-    qubitsOfPosition = closestPowerOf2(lengthOfArr -1)
+    qubitsOfPosition = closestPowerOf2(lengthOfArr - 1)
     qubitsOfPosition = np.log2(qubitsOfPosition)
     print('qubits of position:', int(qubitsOfPosition))
     maxArr = max(arr)
@@ -85,29 +96,34 @@ def generateVectorForArray(arr):
     qubitsOfArrayElement = np.log2(num)
     print('qubits of values:', int(qubitsOfArrayElement))
     for i in range(len(arr)):
-        bstr = np.uint64(i)  << np.uint64(qubitsOfArrayElement)
-        bstr = bstr + np.uint64(arr[i]) 
-        arr[i]= int(bstr)
-    
+        bstr = np.uint64(i) << np.uint64(qubitsOfArrayElement)
+        bstr = bstr + np.uint64(arr[i])
+        arr[i] = int(bstr)
     qubits = int(qubitsOfPosition + qubitsOfArrayElement)
     return multi_hot_encoder(arr, qubits)
+
 
 def generateVectorForSet(arr):
     maxArr = max(arr)
     num = closestPowerOf2(maxArr)
     qubitsOfArrayElement = np.log2(num)
-    
+
     qubits = int(qubitsOfArrayElement)
     return multi_hot_encoder(arr, qubits)
 
-def shiftState(state, prog):
+
+def shiftState(state):
+    prog = Program()
     bits = shiftedState(state)
 
     for position, bit in enumerate(reversed(bits)):
         if(bool(bit)):
             prog += Program(X(position))
+    return prog
 
-def applyDensityMatrix(state, prog):
+
+def applyDensityMatrix(state):
+    prog = Program()
     rows = len(state[0])
     arr = generate_density_matrix(state, rows)
 
@@ -119,15 +135,19 @@ def applyDensityMatrix(state, prog):
     qubits = range(num_of_qubits)
     qbits = [qubit for qubit in reversed(qubits)]
     prog += Program(operator(*qbits))
+    return prog
 
-def closestPowerOf2(value,powerOfTwo=1):
+
+def closestPowerOf2(value, powerOfTwo=1):
     if(value >= 2 * powerOfTwo):
-        return closestPowerOf2(value,2 * powerOfTwo)
+        return closestPowerOf2(value, 2 * powerOfTwo)
     else:
         return 2 * powerOfTwo
-    
+
+
 def getArray():
     return [3, 19, 21, 3, 5, 4, 29]
+
 
 def getInputArray():
     full_cmd_arguments = sys.argv
@@ -135,17 +155,19 @@ def getInputArray():
     short_options = "i:"
     long_options = ["input="]
     try:
-        arguments, values = getopt.getopt(argument_list, short_options, long_options)
+        arguments, values = getopt.getopt(
+            argument_list, short_options, long_options)
     except getopt.error as err:
-        print (str(err))
+        print(str(err))
         sys.exit(2)
     outputArray = []
     for current_argument, current_value in arguments:
         if current_argument in ("-i", "--input"):
-            print (("Enabling input mode (%s)") % (current_value))
+            print(("Enabling input mode (%s)") % (current_value))
             outputArray = [int(x) for x in current_value if x != ',']
 
     return outputArray
+
 
 def generateRandomMatrix():
     lengthOfArray = random.randint(1, 16)
@@ -158,21 +180,24 @@ def generateRandomMatrix():
             arr.append(0)
     return arr
 
-def getState(prog, arr, operation='set'):
+
+def getState(arr, operation='set'):
+    prog = Program()
     state = None
     if(operation == 'set'):
         state = generateVectorForSet(arr)
     elif(operation == 'array'):
         state = generateVectorForArray(arr)
-    shiftState(state, prog)
-    applyDensityMatrix(state, prog)
+    prog += shiftState(state)
+    prog += applyDensityMatrix(state)
     return prog
-    
+
+
 def generateSuperPositionState():
     prog = Program()
     inputArr = getArray()
     print('input array', inputArr)
-    prog = getState(prog, inputArr, 'array')
+    prog += getState(inputArr, 'array')
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     prob = wfn.get_outcome_probs()
@@ -180,6 +205,6 @@ def generateSuperPositionState():
     # print(prob)
 
     print(wfn)
-    
+
 if __name__ == "__main__":
     generateSuperPositionState()
