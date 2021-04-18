@@ -2,10 +2,10 @@
 # https://en.wikipedia.org/wiki/Grover%27s_algorithm
 
 # author: Konstantinos Dalkafoukis
-from pyquil import get_qc, Program
+from pyquil import Program
 from pyquil.quil import DefGate
 from pyquil.gates import *
-from pyquil.api import local_forest_runtime, WavefunctionSimulator
+from pyquil.api import WavefunctionSimulator
 import numpy as np
 import sys
 
@@ -65,6 +65,43 @@ def diffusion_iterations(qubits):
     return ((np.pi / 4) * np.sqrt(2 ** len(qubits))).astype(int)
 
 
+def obstacle(qubits):
+    prog = Program()
+    num_of_qubits = len(qubits)
+    num_of_qubits_minus_one = num_of_qubits - 1
+    gate = Z(num_of_qubits_minus_one)
+    for i in range(num_of_qubits_minus_one):
+        gate = gate.controlled(i)
+    prog += Program(gate)
+    return prog
+
+
+def flipQubits(qubits, key):
+    prog = Program()
+    num_of_qubits = len(qubits)
+    counter = 0
+    key_in_binary = '{:0{:d}b}'.format(key, num_of_qubits)
+    for bit in reversed(key_in_binary):
+        if bit == "0":
+            prog += Program(X(counter))
+        counter += 1
+    return prog
+
+
+def groversAlgorithmSingleKeySimulation(qubits, key):
+    prog = Program()
+    prog += equalSuperPosition(qubits)
+    grovers_diffusion_operator = GroversDiffusionOperator(qubits)
+    prog += grovers_diffusion_operator.init()
+    iterations = diffusion_iterations(qubits)
+    for _ in range(iterations):
+        prog += obstacle(qubits)
+        prog += grovers_diffusion_operator.iterate()
+
+    prog += flipQubits(qubits, key)
+    return prog
+
+
 def groversAlgorithm(qubits, key):
     prog = Program()
     prog += equalSuperPosition(qubits)
@@ -76,7 +113,7 @@ def groversAlgorithm(qubits, key):
     prog += grovers_diffusion_operator.init()
 
     iterations = diffusion_iterations(qubits)
-    for i in range(iterations):
+    for _ in range(iterations):
         prog += obstacle.iterate()
         prog += grovers_diffusion_operator.iterate()
 
@@ -106,6 +143,7 @@ def main(argv):
     qubits = range(num_of_qubits)
 
     prog = groversAlgorithm(qubits, key)
+    # prog = groversAlgorithmSingleKeySimulation(qubits, key)
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     print(wfn)
