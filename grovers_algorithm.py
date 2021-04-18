@@ -61,6 +61,9 @@ def equalSuperPosition(qubits):
 
 
 def diffusion_iterations(num_of_qubits, length_of_key):
+    '''
+    iterations = pi / 4 * √(N/M) , M < N / 2
+    '''
     return ((np.pi / 4) * np.sqrt(2 ** num_of_qubits / length_of_key)).astype(int)
 
 
@@ -125,10 +128,7 @@ def getNumOfQubitsAndSearchKey(argv):
     if (len(argv) >= 2):
         arr = [int(x) for x in argv[1] if x != ',']
         try:
-            '''
-            iterations = pi / 4 * √(N/M)
-             M < N / 2
-            '''
+            '''M < N / 2'''
             if(argv[0] in argv and argv[1] in argv and 2 ** int(argv[0]) / 2 > len(keys)):
                 num_of_qubits = int(argv[0])
                 keys = arr
