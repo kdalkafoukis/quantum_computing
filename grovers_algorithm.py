@@ -60,13 +60,12 @@ def equalSuperPosition(qubits):
     return prog
 
 
-def diffusion_iterations(qubits, length_of_key):
-    return ((np.pi / 4) * np.sqrt(2 ** len(qubits) / length_of_key)).astype(int)
+def diffusion_iterations(num_of_qubits, length_of_key):
+    return ((np.pi / 4) * np.sqrt(2 ** num_of_qubits / length_of_key)).astype(int)
 
 
-def obstacle(qubits):
+def obstacle(num_of_qubits):
     prog = Program()
-    num_of_qubits = len(qubits)
     num_of_qubits_minus_one = num_of_qubits - 1
     gate = Z(num_of_qubits_minus_one)
     for i in range(num_of_qubits_minus_one):
@@ -75,9 +74,8 @@ def obstacle(qubits):
     return prog
 
 
-def flipQubits(qubits, key):
+def flipQubits(num_of_qubits, key):
     prog = Program()
-    num_of_qubits = len(qubits)
     counter = 0
     key_in_binary = '{:0{:d}b}'.format(key, num_of_qubits)
     for bit in reversed(key_in_binary):
@@ -87,21 +85,23 @@ def flipQubits(qubits, key):
     return prog
 
 
-def groversAlgorithmSingleKeySimulation(qubits, key):
+def groversAlgorithmSingleKeySimulation(num_of_qubits, key):
     prog = Program()
+    qubits = range(num_of_qubits)
     prog += equalSuperPosition(qubits)
     grovers_diffusion_operator = GroversDiffusionOperator(qubits)
     prog += grovers_diffusion_operator.init()
-    iterations = diffusion_iterations(qubits)
+    iterations = diffusion_iterations(num_of_qubits, 1)
     for _ in range(iterations):
-        prog += obstacle(qubits)
+        prog += obstacle(num_of_qubits)
         prog += grovers_diffusion_operator.iterate()
 
-    prog += flipQubits(qubits, key)
+    prog += flipQubits(num_of_qubits, key)
     return prog
 
 
-def groversAlgorithm(qubits, keys):
+def groversAlgorithm(num_of_qubits, keys):
+    qubits = range(num_of_qubits)
     prog = Program()
     prog += equalSuperPosition(qubits)
 
@@ -111,7 +111,7 @@ def groversAlgorithm(qubits, keys):
     grovers_diffusion_operator = GroversDiffusionOperator(qubits)
     prog += grovers_diffusion_operator.init()
 
-    iterations = diffusion_iterations(qubits, len(keys))
+    iterations = diffusion_iterations(num_of_qubits, len(keys))
     for _ in range(iterations):
         prog += obstacle.iterate()
         prog += grovers_diffusion_operator.iterate()
@@ -140,11 +140,8 @@ def getNumOfQubitsAndSearchKey(argv):
 
 def main(argv):
     num_of_qubits, keys = getNumOfQubitsAndSearchKey(argv)
-
-    qubits = range(num_of_qubits)
-
-    prog = groversAlgorithm(qubits, keys)
-    # prog = groversAlgorithmSingleKeySimulation(qubits, keys[0])
+    prog = groversAlgorithm(num_of_qubits, keys)
+    # prog = groversAlgorithmSingleKeySimulation(num_of_qubits, keys[0])
 
     wfn = WavefunctionSimulator().wavefunction(prog)
     print(wfn)
