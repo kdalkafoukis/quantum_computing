@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 
-def plotOutput(prob):
+
+def plotOutput(prob, accuracy=0):
     keys = []
     values = []
-    threshold = 0.02
+    threshold = accuracy
     for key, value in prob.items():
         if(value > threshold):
             values.append(value)
