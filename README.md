@@ -59,3 +59,9 @@ last 5 ones are for the value of the array element
 - 1st arg: number of qubits for approximation
 - 2nd arg: theta to be approximated
 - run for eg. qubits=3 and theta=1/4 `python grovers_algorithm.py 3 1/4`
+
+### Alternate Minimum Algorithm
+
+run `python finding_minimum.py`
+
+note: works for a subset of possible cases
