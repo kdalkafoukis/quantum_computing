@@ -65,3 +65,8 @@ last 5 ones are for the value of the array element
 run `python finding_minimum.py`
 
 note: works for a subset of possible cases
+
+'''
+The current design of the algorithm requires that the number of binary numbers with
+first digit 0 should be strictly less than the number of binary numbers with first digit 1
+'''
