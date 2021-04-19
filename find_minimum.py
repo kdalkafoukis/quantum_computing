@@ -17,16 +17,14 @@ from utils import plotOutput
 
 
 class Obstacle:
-    def __init__(self, qubits, keys, name):
+    def __init__(self, qubits, inputArr, i, name):
         rows = 2 ** qubits
-        arr = np.zeros((rows, rows), int)
-        for row in range(rows):
-            diagonal_element = 1
-            if(row in keys):
-                diagonal_element = -1
-
-            arr[row][row] = diagonal_element
-
+        arr = np.identity(rows, int)
+        counter = 0
+        for elem in reversed(['{:0{:d}b}'.format(el, qubits) for el in inputArr]):
+            if elem[i] == "0":
+                arr[counter][counter] = -1
+            counter += 1
         self.obstacle_definition = DefGate(name, arr)
         self.qubits = range(qubits)
 
@@ -41,10 +39,7 @@ class Obstacle:
 
 class GroversDiffusionOperator:
     def __init__(self, qubits, inputArr):
-        print('inputArr', inputArr)
         arr = multi_hot_encoder(inputArr, qubits)
-        rows = len(arr[0])
-        print('rows', rows)
         sC = np.sqrt(1 / len(inputArr)) * np.array(arr)
         sCproduct = np.multiply(sC, np.transpose(sC))
         G = 2 * sCproduct - np.identity(2 ** qubits)
@@ -82,23 +77,15 @@ def find_minimum(inputArr):
         qubitsOfPosition + qubitsOfPosition, inputArr)
     prog += grovers_diffusion_operator.init()
 
-    obstacle = Obstacle(qubitsOfArrayElement, [
-                        1, 2], 'OBSTACLE-{}'.format(0))
-    prog += obstacle.init()
-    prog += obstacle.iterate()
-    prog += grovers_diffusion_operator.iterate()
-    prog += obstacle.iterate()
-    for i in range(3):
-        prog += Program(RZ(2 * np.pi, i))
-
-    obstacle = Obstacle(qubitsOfArrayElement, [
-                        1, 5], 'OBSTACLE-{}'.format(1))
-    prog += obstacle.init()
-    prog += obstacle.iterate()
-    prog += grovers_diffusion_operator.iterate()
-    prog += obstacle.iterate()
-    for i in range(3):
-        prog += Program(RZ(2 * np.pi, i))
+    for i in range(qubitsOfArrayElement):
+        obstacle = Obstacle(qubitsOfArrayElement, arr,
+                            i, 'OBSTACLE-{}'.format(i))
+        prog += obstacle.init()
+        prog += obstacle.iterate()
+        prog += grovers_diffusion_operator.iterate()
+        prog += obstacle.iterate()
+        for j in range(qubitsOfArrayElement):
+            prog += Program(RZ(2 * np.pi, j))
     return prog
 
 
