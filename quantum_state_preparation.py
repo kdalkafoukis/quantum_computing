@@ -11,6 +11,30 @@ import numpy as np
 import sys
 
 
+def index(qubit, qubits, i):
+    prog = Program()
+    key_in_binary = '{:0{:d}b}'.format(2 ** qubit - 1 - i, qubit)
+    for controlled_bit in range(qubit):
+        if key_in_binary[controlled_bit] == '1':
+            prog += Program(X(qubits - 1 - controlled_bit))
+    return prog
+
+
+def construct_circuit(angles, qubits):
+    prog = Program()
+    counter = 0
+    for qubit in range(qubits):
+        for i in range(2 ** qubit):
+            gate = RY(angles[counter], qubits - 1 - qubit)
+            prog += index(qubit, qubits, i)
+            for controlled_bit in range(qubit):
+                gate = gate.controlled(qubits - 1 - controlled_bit)
+            prog += Program(gate)
+            prog += index(qubit, qubits, i)
+            counter += 1
+    return prog
+
+
 def calclulate_angles(arr):
     new_arr = []
     length_new_arr = int(len(arr) / 2)
@@ -36,7 +60,8 @@ def calclulate_angles(arr):
 def quantum_state_preparation(arr):
     prog = Program()
     angles = calclulate_angles(arr)
-    print(angles)
+    qubits = int(np.log2(len(arr)))
+    prog += construct_circuit(angles, qubits)
     return prog
 
 
@@ -52,7 +77,9 @@ def main(argv):
     prog = quantum_state_preparation(arr)
     wfn = WavefunctionSimulator().wavefunction(prog)
     # prob = wfn.get_outcome_probs()
-    print(wfn)
+    print('input arr: ', arr)
+    print()
+    print('wave function: ', wfn)
 
 
 if __name__ == "__main__":
