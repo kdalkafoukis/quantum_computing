@@ -70,3 +70,15 @@ note: works for a subset of possible cases
 The current design of the algorithm requires that the number of binary numbers with
 first digit 0 should be strictly less than the number of binary numbers with first digit 1
 '''
+
+### Quantum state preparation
+
+`python quantum_state_preparation.py`
+
+##### results
+
+```
+input arr:  [0.17320508075688773, 0.2645751311064591, 0.3872983346207417, 0.22360679774997896, 0.31622776601683794, 0.5477225575051661, 0.4472135954999579, 0.31622776601683794]
+
+wave function:  (0.1732050808+0j)|000> + (0.2645751311+0j)|001> + (0.3872983346+0j)|010> + (0.2236067977+0j)|011> + + (0.316227766+0j)|100> + (0.5477225575+0j)|101> + (0.4472135955+0j)|110> + (0.316227766+0j)|111>
+```
