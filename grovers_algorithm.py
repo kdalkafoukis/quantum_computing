@@ -124,7 +124,7 @@ def groversAlgorithm(num_of_qubits, keys):
 
 def getNumOfQubitsAndSearchKey(argv):
     num_of_qubits = 3
-    keys = [0]
+    keys = [0, 1, 2, 3, 4]
     if (len(argv) >= 2):
         arr = [int(x) for x in argv[1] if x != ',']
         try:

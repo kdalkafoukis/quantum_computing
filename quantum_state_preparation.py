@@ -66,8 +66,15 @@ def quantum_state_preparation(arr):
 
 
 def getInput(argv):
-    # inputArr = [1/3, 1/3, 1/3, 0]
     inputArr = [0.03, 0.07, 0.15, 0.05, 0.1, 0.3, 0.2, 0.1]
+    if len(argv) == 1 and argv[0] in argv:
+        arr = argv[0].split(',')
+        arr = list(map(lambda x: x.split('/'), arr))
+        arr = [int(x[0]) / int(x[1]) if len(x) == 2 else 0 for x in arr]
+        try:
+            inputArr = arr
+        except ValueError:
+            pass
     inputArr = list(map(lambda x: np.sqrt(x), inputArr))
     return inputArr
 

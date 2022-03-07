@@ -1,7 +1,7 @@
 # https://en.wikipedia.org/wiki/Quantum_counting_algorithm
 
 # author: Konstantinos Dalkafoukis
-# Quantum phase estimation
+# Quantum counting algorithm
 from pyquil import Program
 from pyquil.gates import *
 from pyquil.paulis import *
@@ -10,6 +10,7 @@ import numpy as np
 import sys
 from pyquil.quil import DefGate
 from utils import plotOutput
+import math
 
 
 def getObstacle(qubits, keys):
@@ -56,9 +57,8 @@ def applyHadamard(p, n):
     return prog
 
 
-def controlUnitary(p, n):
+def controlUnitary(p, n, num_of_solutions):
     prog = Program()
-    num_of_solutions = 3
     obstacleDef = getObstacle(range(n, n + p), range(num_of_solutions))
     prog += Program(obstacleDef)
     diffOperatorDef = getDiffOperator(range(n, n + p))
@@ -66,8 +66,7 @@ def controlUnitary(p, n):
     obstacle = obstacleDef.get_constructor()
     diffOperator = diffOperatorDef.get_constructor()
 
-    # qbits = [qubit for qubit in reversed(range(n, n + p))]
-    qbits = [qubit for qubit in range(n, n + p)]
+    qbits = [qubit for qubit in reversed(range(n, n + p))]
     for qubit in range(n):
         for _ in range(2 ** qubit):
             prog += Program(obstacle(*qbits))
@@ -75,10 +74,10 @@ def controlUnitary(p, n):
     return prog
 
 
-def phase_estimation(p, n):
+def phase_estimation(p, n, num_of_solutions):
     prog = Program()
     prog += applyHadamard(p, n)
-    prog += controlUnitary(p, n)
+    prog += controlUnitary(p, n, num_of_solutions)
     prog += qft_dagger(n)
     return prog
 
@@ -86,30 +85,53 @@ def phase_estimation(p, n):
 def getInput(argv):
     p = 4
     n = 4
-    if (len(argv) == 2):
+    num_of_solutions = 5
+    if (len(argv) == 3):
         try:
             p = int(argv[0])
             n = int(argv[1])
+            num_of_solutions = int(argv[2])
         except ValueError:
             pass
-    return p, n
+    return p, n, num_of_solutions
 
 
-def filterProb(prob):
+def filterProb(prob, p):
     newProb = {}
-    return
+    for key, value in prob.items():
+        k = key[:p:]
+        if k not in newProb:
+            newProb[k] = value
+        else:
+            newProb[k] += value
+    return newProb
+
+
+def calculate_M(measured_int, t, n):
+    """For Processing Output of Quantum Counting"""
+    # Calculate Theta
+    theta = (measured_int/(2**t))*math.pi*2
+    print("Theta = %.5f" % theta)
+    # Calculate No. of Solutions
+    N = 2**n
+    M = N * (math.sin(theta/2)**2)
+    print("No. of Solutions = %.1f" % (N-M))
 
 
 def main(argv):
-    p, n = getInput(argv)
-    prog = phase_estimation(p, n)
+    p, n, num_of_solutions = getInput(argv)
+    prog = phase_estimation(p, n, num_of_solutions)
     wfn = WavefunctionSimulator().wavefunction(prog)
     prob = wfn.get_outcome_probs()
     print('p:', p)
     print('n:', n)
+    print('num_of_solutions:', num_of_solutions)
     # print('wfn:', wfn)
-    newProb = filterProb(prob)
-    plotOutput(newProb, 0.02)
+    newProb = filterProb(prob, p)
+    plotOutput(newProb, 0.01)
+    # plotOutput(prob, 0.01)
+    print(prog)
+    # calculate_M(3, p, n)
 
 
 if __name__ == "__main__":

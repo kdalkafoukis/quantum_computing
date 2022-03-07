@@ -82,6 +82,7 @@ def main(argv):
     print('qubits:', qubits)
     print('theta:', theta)
     print('approximated theta:', approximatedTheta)
+    print('wfn:', wfn)
 
 
 if __name__ == "__main__":

@@ -17,13 +17,14 @@ from utils import plotOutput
 
 
 class Obstacle:
-    def __init__(self, qubits, keys, name):
+    def __init__(self, qubits, inputArr, i, name):
         rows = 2 ** qubits
         arr = np.identity(rows, int)
-        for row in range(rows):
-            if(row in keys):
-                arr[row][row] = -1
-
+        counter = 0
+        for elem in reversed(['{:0{:d}b}'.format(el, qubits) for el in inputArr]):
+            if elem[i] == "0":
+                arr[counter][counter] = -1
+            counter += 1
         self.obstacle_definition = DefGate(name, arr)
         self.qubits = range(qubits)
 
@@ -74,15 +75,10 @@ def find_minimum(inputArr):
     qubits = qubitsOfPosition + qubitsOfArrayElement
     grovers_diffusion_operator = GroversDiffusionOperator(qubits, inputArr)
     prog += grovers_diffusion_operator.init()
+
     for i in range(qubitsOfArrayElement):
-        temp = ['{:0{:d}b}'.format(el, qubits) for el in inputArr]
-        keys = reversed(temp)
-        keys = list(map(lambda x: int(x[i + qubitsOfPosition]), keys))
-        keys = [el for el in range(len(keys)) if keys[el] == 0]
-        # print(keys)
-        # if len(keys) > 1:
-        obstacle = Obstacle(qubitsOfArrayElement, keys,
-                            'OBSTACLE-{}'.format(i))
+        obstacle = Obstacle(qubitsOfArrayElement, arr,
+                            i, 'OBSTACLE-{}'.format(i))
         prog += obstacle.init()
         prog += obstacle.iterate()
         prog += grovers_diffusion_operator.iterate()
@@ -92,19 +88,19 @@ def find_minimum(inputArr):
     return prog
 
 
-def getArray(argv):
-    inputArr = [7, 5, 2, 1, 6]
-    if len(argv) == 1 and argv[0] in argv:
-        arr = [int(x) for x in argv[0] if x != ',']
-        try:
-            inputArr = arr
-        except ValueError:
-            pass
-    return inputArr
+# def getArray(argv):
+#     inputArr = [7, 5, 2, 1, 6]
+#     if len(argv) == 1 and argv[0] in argv:
+#         arr = [int(x) for x in argv[0] if x != ',']
+#         try:
+#             inputArr = arr
+#         except ValueError:
+#             pass
+#     return inputArr
 
 
 def main(argv):
-    inputArr = getArray(argv)
+    inputArr = [7, 5, 2, 1, 6]
     prog = find_minimum(inputArr)
     wfn = WavefunctionSimulator().wavefunction(prog)
     print(wfn)
